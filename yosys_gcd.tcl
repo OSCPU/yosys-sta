@@ -6,11 +6,10 @@
 set DESIGN                  "gcd"
 set PROJ_PATH               $::env(PROJ_PATH)
 set FOUNDRY_PATH            $::env(FOUNDRY_PATH)
+set RESULT_PATH             $::env(RESULT_PATH)
+set RPT_PATH                $::env(RESULT_PATH)
 set RTL_PATH                $::env(RTL_PATH)
 set SDC_FILE                "$RTL_PATH/$DESIGN.sdc"
-
-set RESULT_PATH             "$PROJ_PATH/result"
-set RPT_PATH                "$PROJ_PATH/result"
 
 set MERGED_LIB_FILE         "$FOUNDRY_PATH/lib/merged.lib"
 set BLACKBOX_V_FILE         "$FOUNDRY_PATH/verilog/blackbox.v" 
