@@ -9,15 +9,15 @@ set RESULT_PATH             $PROJ_PATH/result/syn
 set VERILOG_INCLUDE_DIRS    ""
 
 set MERGED_LIB_FILE         "$PROJ_PATH/nangate45/lib/merged.lib"
-set BLACKBOX_V_FILE         "$PROJ_PATH/nangate45/verilog/blackbox.v" 
-set CLKGATE_MAP_FILE        "$PROJ_PATH/nangate45/verilog/cells_clkgate.v" 
-set LATCH_MAP_FILE          "$PROJ_PATH/nangate45/verilog/cells_latch.v" 
-set BLACKBOX_MAP_TCL        "$PROJ_PATH/nangate45/blackbox_map.tcl" 
-set CLOCK_PERIOD            "20.0" 
+set BLACKBOX_V_FILE         "$PROJ_PATH/nangate45/verilog/blackbox.v"
+set CLKGATE_MAP_FILE        "$PROJ_PATH/nangate45/verilog/cells_clkgate.v"
+set LATCH_MAP_FILE          "$PROJ_PATH/nangate45/verilog/cells_latch.v"
+set BLACKBOX_MAP_TCL        "$PROJ_PATH/nangate45/blackbox_map.tcl"
+set CLOCK_PERIOD            "20.0"
 
-set TIEHI_CELL_AND_PORT     "LOGIC1_X1 Z" 
-set TIELO_CELL_AND_PORT     "LOGIC0_X1 Z" 
-set MIN_BUF_CELL_AND_PORTS  "BUF_X1 A Z" 
+set TIEHI_CELL_AND_PORT     "LOGIC1_X1 Z"
+set TIELO_CELL_AND_PORT     "LOGIC0_X1 Z"
+set MIN_BUF_CELL_AND_PORTS  "BUF_X1 A Z"
 
 #===========================================================
 #   main running
@@ -73,7 +73,7 @@ if {[info exist BLACKBOX_MAP_TCL]} {
 synth  -top $DESIGN
 
 # Optimize the design
-opt -purge  
+opt -purge
 
 # technology mapping of latches
 if {[info exist LATCH_MAP_FILE]} {
@@ -89,7 +89,7 @@ abc -D [expr $CLOCK_PERIOD * 1000] \
     -constr "$SDC_FILE" \
     -liberty $MERGED_LIB_FILE \
     -showtmp \
-    -script $abc_script 
+    -script $abc_script
 
 
 # technology mapping of constant hi- and/or lo-drivers
