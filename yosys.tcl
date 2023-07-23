@@ -2,10 +2,11 @@
 #   set parameter
 #===========================================================
 set DESIGN                  [lindex $argv 0]
-set FOUNDRY_PATH            $::env(FOUNDRY_PATH)
-set RESULT_PATH             $::env(RESULT_PATH)
 set SDC_FILE                [lindex $argv 1]
 set VERILOG_FILES           [string map {"\"" ""} [lindex $argv 2]]
+set FOUNDRY_PATH            $::env(FOUNDRY_PATH)
+set RESULT_PATH             $::env(RESULT_PATH)
+set VERILOG_INCLUDE_DIRS    ""
 
 set MERGED_LIB_FILE         "$FOUNDRY_PATH/lib/merged.lib"
 set BLACKBOX_V_FILE         "$FOUNDRY_PATH/verilog/blackbox.v" 
@@ -18,9 +19,6 @@ set TIEHI_CELL_AND_PORT     "LOGIC1_X1 Z"
 set TIELO_CELL_AND_PORT     "LOGIC0_X1 Z" 
 set MIN_BUF_CELL_AND_PORTS  "BUF_X1 A Z" 
 
-set VERILOG_INCLUDE_DIRS "\
-"
-
 #===========================================================
 #   main running
 #===========================================================
@@ -30,7 +28,6 @@ yosys -import
 set stat_ext    "_stat.rep"
 set gl_ext      "_gl.v"
 set abc_script  "+read_constr,$SDC_FILE;strash;ifraig;retime,-D,{D},-M,6;strash;dch,-f;map,-p,-M,1,{D},-f;topo;dnsize;buffer,-p;upsize;"
-#set abc_script  "+strash;ifraig;map,-p,-M,1,{D};topo;dnsize,-c;buffer,-c;upsize,-c;"
 
 # Setup verilog include directories
 set vIdirsArgs ""
@@ -73,7 +70,6 @@ if {[info exist BLACKBOX_MAP_TCL]} {
 }
 
 # generic synthesis
-#synth  -top $DESIGN -flatten
 synth  -top $DESIGN
 
 # Optimize the design
@@ -118,5 +114,4 @@ tee -o $RESULT_PATH/synth_check.txt check
 tee -o $RESULT_PATH/synth_stat.txt stat -liberty $MERGED_LIB_FILE
 
 # write synthesized design
-#write_verilog -norename -noattr -noexpr -nohex -nodec $RESULTS_DIR/1_1_yosys.v
 write_verilog -noattr -noexpr -nohex -nodec $RESULT_PATH/$DESIGN.v
