@@ -4,15 +4,15 @@
 set DESIGN                  [lindex $argv 0]
 set SDC_FILE                [lindex $argv 1]
 set VERILOG_FILES           [string map {"\"" ""} [lindex $argv 2]]
-set FOUNDRY_PATH            $::env(FOUNDRY_PATH)
-set RESULT_PATH             $::env(RESULT_PATH)
+set PROJ_PATH               [file dirname [info script]]
+set RESULT_PATH             $PROJ_PATH/result/syn
 set VERILOG_INCLUDE_DIRS    ""
 
-set MERGED_LIB_FILE         "$FOUNDRY_PATH/lib/merged.lib"
-set BLACKBOX_V_FILE         "$FOUNDRY_PATH/verilog/blackbox.v" 
-set CLKGATE_MAP_FILE        "$FOUNDRY_PATH/verilog/cells_clkgate.v" 
-set LATCH_MAP_FILE          "$FOUNDRY_PATH/verilog/cells_latch.v" 
-set BLACKBOX_MAP_TCL        "$FOUNDRY_PATH/blackbox_map.tcl" 
+set MERGED_LIB_FILE         "$PROJ_PATH/nangate45/lib/merged.lib"
+set BLACKBOX_V_FILE         "$PROJ_PATH/nangate45/verilog/blackbox.v" 
+set CLKGATE_MAP_FILE        "$PROJ_PATH/nangate45/verilog/cells_clkgate.v" 
+set LATCH_MAP_FILE          "$PROJ_PATH/nangate45/verilog/cells_latch.v" 
+set BLACKBOX_MAP_TCL        "$PROJ_PATH/nangate45/blackbox_map.tcl" 
 set CLOCK_PERIOD            "20.0" 
 
 set TIEHI_CELL_AND_PORT     "LOGIC1_X1 Z" 
