@@ -1,8 +1,8 @@
 PROJ_PATH = $(shell pwd)
 
 DESIGN = gcd
-SDC_FILE = $(PROJ_PATH)/gcd/gcd.sdc
-RTL_FILES = $(shell find $(PROJ_PATH)/gcd -name "*.v")
+SDC_FILE = $(PROJ_PATH)/example/gcd.sdc
+RTL_FILES = $(shell find $(PROJ_PATH)/example -name "*.v")
 
 export FOUNDRY_PATH = $(PROJ_PATH)/nangate45
 export RESULT_PATH = $(PROJ_PATH)/result/syn
