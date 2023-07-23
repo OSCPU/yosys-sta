@@ -1,15 +1,11 @@
-# export PROJ_PATH=??
-# docker run --rm -v $PROJ_PATH:$PROJ_PATH -e PROJ_PATH=$PROJ_PATH hdlc/yosys yosys $PROJ_PATH/gcd/synth.yosys_0.9.tcl
 #===========================================================
 #   set parameter
 #===========================================================
-set DESIGN                  "gcd"
-set PROJ_PATH               $::env(PROJ_PATH)
+set DESIGN                  [lindex $argv 0]
 set FOUNDRY_PATH            $::env(FOUNDRY_PATH)
 set RESULT_PATH             $::env(RESULT_PATH)
-set RPT_PATH                $::env(RESULT_PATH)
-set RTL_PATH                $::env(RTL_PATH)
-set SDC_FILE                "$RTL_PATH/$DESIGN.sdc"
+set SDC_FILE                [lindex $argv 1]
+set VERILOG_FILES           [string map {"\"" ""} [lindex $argv 2]]
 
 set MERGED_LIB_FILE         "$FOUNDRY_PATH/lib/merged.lib"
 set BLACKBOX_V_FILE         "$FOUNDRY_PATH/verilog/blackbox.v" 
@@ -23,9 +19,6 @@ set TIELO_CELL_AND_PORT     "LOGIC0_X1 Z"
 set MIN_BUF_CELL_AND_PORTS  "BUF_X1 A Z" 
 
 set VERILOG_INCLUDE_DIRS "\
-"
-set VERILOG_FILES " \
-$RTL_PATH/$DESIGN.v \
 "
 
 #===========================================================
@@ -121,8 +114,8 @@ insbuf -buf {*}$MIN_BUF_CELL_AND_PORTS
 opt_clean -purge
 
 # reports
-tee -o $RPT_PATH/synth_check.txt check
-tee -o $RPT_PATH/synth_stat.txt stat -liberty $MERGED_LIB_FILE
+tee -o $RESULT_PATH/synth_check.txt check
+tee -o $RESULT_PATH/synth_stat.txt stat -liberty $MERGED_LIB_FILE
 
 # write synthesized design
 #write_verilog -norename -noattr -noexpr -nohex -nodec $RESULTS_DIR/1_1_yosys.v
