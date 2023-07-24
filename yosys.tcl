@@ -2,9 +2,8 @@
 #   set parameter
 #===========================================================
 set DESIGN                  [lindex $argv 0]
-set SDC_FILE                [lindex $argv 1]
-set VERILOG_FILES           [string map {"\"" ""} [lindex $argv 2]]
-set NETLIST_V               [lindex $argv 3]
+set VERILOG_FILES           [string map {"\"" ""} [lindex $argv 1]]
+set NETLIST_V               [lindex $argv 2]
 set VERILOG_INCLUDE_DIRS    ""
 set RESULT_DIR              [file dirname $NETLIST_V]
 
@@ -28,7 +27,7 @@ yosys -import
 # Don't change these unless you know what you are doing
 set stat_ext    "_stat.rep"
 set gl_ext      "_gl.v"
-set abc_script  "+read_constr,$SDC_FILE;strash;ifraig;retime,-D,{D},-M,6;strash;dch,-f;map,-p,-M,1,{D},-f;topo;dnsize;buffer,-p;upsize;"
+set abc_script  "+strash;ifraig;retime,-D,{D},-M,6;strash;dch,-f;map,-p,-M,1,{D},-f;topo;dnsize;buffer,-p;upsize;"
 
 # Setup verilog include directories
 set vIdirsArgs ""
@@ -87,7 +86,6 @@ opt -undriven
 
 # Technology mapping for cells
 abc -D [expr $CLOCK_PERIOD * 1000] \
-    -constr "$SDC_FILE" \
     -liberty $MERGED_LIB_FILE \
     -showtmp \
     -script $abc_script

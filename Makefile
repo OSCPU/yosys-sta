@@ -12,9 +12,9 @@ init:
 	bash -c "$$(wget -O - https://ysyx.oscc.cc/slides/resources/scripts/init-yosys-sta.sh)"
 
 syn: $(NETLIST_V)
-$(NETLIST_V): $(SDC_FILE) $(RTL_FILES)
+$(NETLIST_V): $(RTL_FILES) yosys.tcl
 	mkdir -p $(@D)
-	echo tcl yosys.tcl $(DESIGN) $(SDC_FILE) \"$(RTL_FILES)\" $(NETLIST_V) | yosys -s - | tee $(@D)/yosys.log
+	echo tcl yosys.tcl $(DESIGN) \"$(RTL_FILES)\" $(NETLIST_V) | yosys -s - | tee $(@D)/yosys.log
 
 sta: $(TIMING_RPT)
 $(TIMING_RPT): $(SDC_FILE) $(NETLIST_V)
