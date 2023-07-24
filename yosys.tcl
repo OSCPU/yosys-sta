@@ -4,10 +4,11 @@
 set DESIGN                  [lindex $argv 0]
 set SDC_FILE                [lindex $argv 1]
 set VERILOG_FILES           [string map {"\"" ""} [lindex $argv 2]]
-set PROJ_PATH               [file dirname [info script]]
-set RESULT_PATH             $PROJ_PATH/result/syn
+set NETLIST_V               [lindex $argv 3]
 set VERILOG_INCLUDE_DIRS    ""
+set RESULT_DIR              [file dirname $NETLIST_V]
 
+set PROJ_PATH               [file dirname [info script]]
 set MERGED_LIB_FILE         "$PROJ_PATH/nangate45/lib/merged.lib"
 set BLACKBOX_V_FILE         "$PROJ_PATH/nangate45/verilog/blackbox.v"
 set CLKGATE_MAP_FILE        "$PROJ_PATH/nangate45/verilog/cells_clkgate.v"
@@ -110,8 +111,8 @@ insbuf -buf {*}$MIN_BUF_CELL_AND_PORTS
 opt_clean -purge
 
 # reports
-tee -o $RESULT_PATH/synth_check.txt check
-tee -o $RESULT_PATH/synth_stat.txt stat -liberty $MERGED_LIB_FILE
+tee -o $RESULT_DIR/synth_check.txt check
+tee -o $RESULT_DIR/synth_stat.txt stat -liberty $MERGED_LIB_FILE
 
 # write synthesized design
-write_verilog -noattr -noexpr -nohex -nodec $RESULT_PATH/$DESIGN.v
+write_verilog -noattr -noexpr -nohex -nodec $NETLIST_V

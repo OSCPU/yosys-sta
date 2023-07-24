@@ -4,20 +4,21 @@ DESIGN = gcd
 SDC_FILE = $(PROJ_PATH)/example/gcd.sdc
 RTL_FILES = $(shell find $(PROJ_PATH)/example -name "*.v")
 
-NETLIST_FILE = $(PROJ_PATH)/result/syn/$(DESIGN).v
-TIMING_RPT = $(PROJ_PATH)/result/sta/$(DESIGN).rpt
+RESULT_DIR = $(PROJ_PATH)/result/$(DESIGN)
+NETLIST_V  = $(RESULT_DIR)/$(DESIGN).netlist.v
+TIMING_RPT = $(RESULT_DIR)/$(DESIGN).rpt
 
 init:
 	bash -c "$$(wget -O - https://ysyx.oscc.cc/slides/resources/scripts/init-yosys-sta.sh)"
 
-syn: $(NETLIST_FILE)
-$(NETLIST_FILE): $(SDC_FILE) $(RTL_FILES)
+syn: $(NETLIST_V)
+$(NETLIST_V): $(SDC_FILE) $(RTL_FILES)
 	mkdir -p $(@D)
-	echo tcl yosys.tcl $(DESIGN) $(SDC_FILE) \"$(RTL_FILES)\" | yosys -s - | tee $(@D)/yosys.log
+	echo tcl yosys.tcl $(DESIGN) $(SDC_FILE) \"$(RTL_FILES)\" $(NETLIST_V) | yosys -s - | tee $(@D)/yosys.log
 
 sta: $(TIMING_RPT)
-$(TIMING_RPT): $(SDC_FILE) $(NETLIST_FILE)
-	LD_LIBRARY_PATH=bin/ ./bin/iSTA $(PROJ_PATH)/sta.tcl $(DESIGN) $(SDC_FILE) $(NETLIST_FILE)
+$(TIMING_RPT): $(SDC_FILE) $(NETLIST_V)
+	LD_LIBRARY_PATH=bin/ ./bin/iSTA $(PROJ_PATH)/sta.tcl $(DESIGN) $(SDC_FILE) $(NETLIST_V)
 
 clean:
 	-rm -rf result/
