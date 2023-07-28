@@ -3,6 +3,7 @@ PROJ_PATH = $(shell pwd)
 DESIGN = gcd
 SDC_FILE = $(PROJ_PATH)/example/gcd.sdc
 RTL_FILES = $(shell find $(PROJ_PATH)/example -name "*.v")
+export CLK_FREQ_MHZ = 500
 
 RESULT_DIR = $(PROJ_PATH)/result/$(DESIGN)
 NETLIST_V  = $(RESULT_DIR)/$(DESIGN).netlist.v
