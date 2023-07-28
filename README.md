@@ -41,5 +41,12 @@ make sta
    ```shell
    make sta DESIGN=mydesign SDC_FILE=/path/to/my.sdc RTL_FILES="/path/to/mydesign.v /path/to/xxx.v ..." CLK_FREQ_MHZ=100
    ```
-   其中在`RTL_FILES`的文件中必须包含一个名为`DESIGN`的module, sdc文件内容可参考样例设计GCD中的相应文件
 1. 修改变量方式, 在`Makefile`中修改上述变量, 然后运行`make sta`
+
+注意:
+* 在`RTL_FILES`的文件中必须包含一个名为`DESIGN`的module
+* sdc文件中的时钟端口名称需要与设计文件保持一致, 具体内容可参考样例设计GCD中的相应文件
+
+## Bug报告
+
+如果在运行iSTA时遇到bug, 可在issue中报告问题并提供相应的RTL设计.
