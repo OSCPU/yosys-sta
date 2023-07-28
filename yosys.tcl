@@ -13,7 +13,14 @@ set BLACKBOX_V_FILE         "$PROJ_PATH/nangate45/verilog/blackbox.v"
 set CLKGATE_MAP_FILE        "$PROJ_PATH/nangate45/verilog/cells_clkgate.v"
 set LATCH_MAP_FILE          "$PROJ_PATH/nangate45/verilog/cells_latch.v"
 set BLACKBOX_MAP_TCL        "$PROJ_PATH/nangate45/blackbox_map.tcl"
-set CLOCK_PERIOD            "20.0"
+
+set CLK_FREQ_MHZ            500
+if {[info exists env(CLK_FREQ_MHZ)]} {
+  set CLK_FREQ_MHZ          $::env(CLK_FREQ_MHZ)
+} else {
+  puts "Warning: Environment CLK_FREQ_MHZ is not defined. Use $CLK_FREQ_MHZ MHz by default."
+}
+set CLK_PERIOD_NS           [expr 1000 / $CLK_FREQ_MHZ]
 
 set TIEHI_CELL_AND_PORT     "LOGIC1_X1 Z"
 set TIELO_CELL_AND_PORT     "LOGIC0_X1 Z"
@@ -85,7 +92,7 @@ dfflibmap -liberty $MERGED_LIB_FILE
 opt -undriven
 
 # Technology mapping for cells
-abc -D [expr $CLOCK_PERIOD * 1000] \
+abc -D [expr $CLK_PERIOD_NS * 1000] \
     -liberty $MERGED_LIB_FILE \
     -showtmp \
     -script $abc_script
