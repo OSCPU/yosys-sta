@@ -15,7 +15,7 @@ init:
 syn: $(NETLIST_V)
 $(NETLIST_V): $(RTL_FILES) yosys.tcl
 	mkdir -p $(@D)
-	echo tcl yosys.tcl $(DESIGN) \"$(RTL_FILES)\" $(NETLIST_V) | yosys -s - | tee $(@D)/yosys.log
+	echo tcl yosys.tcl $(DESIGN) \"$(RTL_FILES)\" $(NETLIST_V) | yosys -l $(@D)/yosys.log -s -
 
 sta: $(TIMING_RPT)
 $(TIMING_RPT): $(SDC_FILE) $(NETLIST_V)
