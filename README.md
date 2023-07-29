@@ -5,7 +5,7 @@
 
 * 根据iEDA团队的介绍, iSTA有以下优势
   1. 通过TCL命令操作, 使用简单, 能满足常用的时序分析需求
-  1. 开源协议限制少: OpenRoad项目的OpenSTA项目由于开源协议限制，不允许随意修改和发布
+  1. 开源协议限制少: 相对地, OpenRoad项目的OpenSTA项目由于开源协议限制，不能随意修改和发布
   1. 代码结构清晰, 可修改和扩展性强: 团队将持续迭代更新, 以更好支撑开源芯片设计
 * iSTA的一些参考资源:
   * [iSTA的源代码](https://github.com/OSCC-Project/iEDA/tree/master/src/operation/iSTA)
