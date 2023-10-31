@@ -9,8 +9,8 @@
   1. 代码结构清晰, 可修改和扩展性强: 团队将持续迭代更新, 以更好支撑开源芯片设计
 * iSTA的一些参考资源:
   * [iSTA的源代码](https://github.com/OSCC-Project/iEDA/tree/master/src/operation/iSTA)
-  * iSTA的报告解读可参考[这个视频](https://www.bilibili.com/video/BV1yF411Q7D8/?share_source=copy_web&vd_source=8230a7f4787a3667ffb4d4488d7ad851&t=3898)
-  * iSTA的内部技术可参考[第一期iEDA Tutorial](https://www.bilibili.com/video/BV1yF411Q7D8)
+  * iSTA的报告解读可参考[这个视频](https://www.bilibili.com/video/BV1a14y1B7uz/?t=1006)
+  * iSTA的内部技术可参考[第一期iEDA Tutorial](https://www.bilibili.com/video/BV1a14y1B7uz)
 * iEDA团队的完整工作可参考以下文章
   * [Xingquan Li, Simin Tao, Zengrong Huang, et al. An Open-Source Intelligent Physical Implementation Toolkit and Library[C]. International Symposium of EDA, 2023.](https://github.com/OSCC-Project/iEDA/blob/master/docs/paper/ISEDA'23-iEDA-final.pdf)
 * 目前支持开源PDK nangate45, 具体可阅读[nangate45的README](nangate45/README.md)
