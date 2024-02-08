@@ -20,7 +20,7 @@ if {[info exists env(CLK_FREQ_MHZ)]} {
 } else {
   puts "Warning: Environment CLK_FREQ_MHZ is not defined. Use $CLK_FREQ_MHZ MHz by default."
 }
-set CLK_PERIOD_NS           [expr 1000 / $CLK_FREQ_MHZ]
+set CLK_PERIOD_NS           [expr 1000.0 / $CLK_FREQ_MHZ]
 
 set TIEHI_CELL_AND_PORT     "LOGIC1_X1 Z"
 set TIELO_CELL_AND_PORT     "LOGIC0_X1 Z"
