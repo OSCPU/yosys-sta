@@ -1,7 +1,7 @@
-set PROJ_PATH  [file dirname [info script]]
-set DESIGN     [lindex $argv 0]
-set SDC_FILE   [lindex $argv 1]
-set NETLIST_V  [lindex $argv 2]
+set PROJ_PATH "[file dirname [info script]]/.."
+set SDC_FILE   [lindex $argv 0]
+set NETLIST_V  [lindex $argv 1]
+set DESIGN     [lindex $argv 2]
 set RESULT_DIR [file dirname $NETLIST_V]
 set LIB_FILES  $PROJ_PATH/nangate45/lib/merged.lib
 

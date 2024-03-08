@@ -3,16 +3,16 @@
 #===========================================================
 set DESIGN                  [lindex $argv 0]
 set VERILOG_FILES           [string map {"\"" ""} [lindex $argv 1]]
-set NETLIST_V               [lindex $argv 2]
+set NETLIST_SYN_V           [lindex $argv 2]
 set VERILOG_INCLUDE_DIRS    ""
-set RESULT_DIR              [file dirname $NETLIST_V]
+set RESULT_DIR              [file dirname $NETLIST_SYN_V]
 
-set PROJ_PATH               [file dirname [info script]]
-set MERGED_LIB_FILE         "$PROJ_PATH/nangate45/lib/merged.lib"
-set BLACKBOX_V_FILE         "$PROJ_PATH/nangate45/verilog/blackbox.v"
-set CLKGATE_MAP_FILE        "$PROJ_PATH/nangate45/verilog/cells_clkgate.v"
-set LATCH_MAP_FILE          "$PROJ_PATH/nangate45/verilog/cells_latch.v"
-set BLACKBOX_MAP_TCL        "$PROJ_PATH/nangate45/blackbox_map.tcl"
+set FOUNDARY_PATH           "[file dirname [info script]]/../nangate45"
+set MERGED_LIB_FILE         "$FOUNDARY_PATH/lib/merged.lib"
+set BLACKBOX_V_FILE         "$FOUNDARY_PATH/verilog/blackbox.v"
+set CLKGATE_MAP_FILE        "$FOUNDARY_PATH/verilog/cells_clkgate.v"
+set LATCH_MAP_FILE          "$FOUNDARY_PATH/verilog/cells_latch.v"
+set BLACKBOX_MAP_TCL        "$FOUNDARY_PATH/blackbox_map.tcl"
 
 set CLK_FREQ_MHZ            500
 if {[info exists env(CLK_FREQ_MHZ)]} {
@@ -120,4 +120,4 @@ tee -o $RESULT_DIR/synth_check.txt check
 tee -o $RESULT_DIR/synth_stat.txt stat -liberty $MERGED_LIB_FILE
 
 # write synthesized design
-write_verilog -noattr -noexpr -nohex -nodec $NETLIST_V
+write_verilog -noattr -noexpr -nohex -nodec $NETLIST_SYN_V
