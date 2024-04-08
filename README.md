@@ -1,7 +1,11 @@
 # yosys-sta
 
-使用开源综合器Yosys和iEDA团队自研的开源静态时序分析(STA)工具iSTA进行ASIC综合和时序分析,
-用于了解前端RTL设计的时序情况并快速迭代.
+使用开源EDA工具进行ASIC综合和时序分析, 用于了解前端RTL设计的时序情况并快速迭代.
+用到的开源EDA工具包括:
+* 开源综合器Yosys
+* iEDA团队自研的开源EDA工具集, 这些工具会被编译成一个二进制文件`iEDA`, 本项目中用到的子工具包括
+  * 网表优化工具iNO
+  * 静态时序分析(STA)工具iSTA
 
 * 根据iEDA团队的介绍, iSTA有以下优势
   1. 通过TCL命令操作, 使用简单, 能满足常用的时序分析需求
@@ -19,7 +23,7 @@
 
 ```shell
 apt install yosys
-apt install libunwind-dev libgomp1 # iSTA的依赖库
+apt install libunwind-dev libyaml-cpp-dev libgomp1 libtcl8.6 # iEDA的依赖库
 make init
 ```
 
@@ -32,16 +36,22 @@ make sta
 ```
 
 运行后, 可在`result/gcd-500MHz/`目录下查看评估结果. 部分文件说明如下:
-* `gcd.netlist.v` - Yosys综合的网表文件
+* `gcd.netlist.syn.v` - Yosys综合的网表文件
 * `synth_stat.txt` - Yosys综合的面积报告
 * `synth_check.txt` - Yosys综合的检查报告, 用户需仔细阅读并决定是否需要排除相应警告
 * `yosys.log` - Yosys综合的完整日志
+* `gcd.syn.def` - 根据网表文件生成的def文件
+* `gen-def.log` - 根据网表文件生成def文件的日志
+* `gcd.netlist.fixed.v` - iNO优化扇出后的网表文件
+* `fix-fanout.log` - iNO优化扇出的日志
+  * 其中含有一些`Error pin grid coordinate, pin = xxx`的错误信息, 目前可忽略
 * `gcd.rpt` - iSTA的时序分析报告, 包含WNS, TNS和时序路径
 * `gcd.cap` - iSTA的电容违例报告
 * `gcd.fanout` - iSTA的扇出违例报告
 * `gcd.trans` - iSTA的转换时间违例报告
 * `gcd_hold.skew` - iSTA的hold模式下时钟偏斜报告
 * `gcd_setup.skew` - iSTA的setup模式下时钟偏斜报告
+* `sta.log` - iSTA的日志
 
 ## 评估其他设计
 
@@ -58,8 +68,8 @@ make sta
 
 ## Bug报告
 
-如果在运行iSTA时遇到bug, 可在issue中报告问题, 并提供如下信息:
+如果在运行时遇到bug, 可在issue中报告问题, 并提供如下信息:
 1. 相应的RTL设计
 1. sdc文件
-1. 网表文件
-1. iSTA的版本号, 可通过命令`LD_LIBRARY_PATH=bin/ ./bin/iSTA --version`获取
+1. yosys生成的网表文件
+1. iEDA的版本号, 可通过命令`echo exit | LD_LIBRARY_PATH=bin/ ./bin/iEDA -v`获取
