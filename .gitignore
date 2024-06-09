@@ -2,3 +2,4 @@ bin/
 nangate45/
 result
 *.log
+config.mk

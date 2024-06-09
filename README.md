@@ -24,7 +24,13 @@
 ```shell
 apt install yosys
 apt install libunwind-dev libyaml-cpp-dev libgomp1 libtcl8.6 # iEDA的依赖库
-make init
+make init # 下载预编译的iEDA和nangate45工艺库
+```
+
+如果预编译的iEDA不能正常运行，或者希望使用最新版本的iEDA，可以在Docker中编译和运行iEDA.
+
+```shell
+make init-docker
 ```
 
 ## 评估样例设计
