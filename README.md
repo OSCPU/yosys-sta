@@ -40,11 +40,8 @@ make sta
 * `synth_stat.txt` - Yosys综合的面积报告
 * `synth_check.txt` - Yosys综合的检查报告, 用户需仔细阅读并决定是否需要排除相应警告
 * `yosys.log` - Yosys综合的完整日志
-* `gcd.syn.def` - 根据网表文件生成的def文件
-* `gen-def.log` - 根据网表文件生成def文件的日志
 * `gcd.netlist.fixed.v` - iNO优化扇出后的网表文件
 * `fix-fanout.log` - iNO优化扇出的日志
-  * 其中含有一些`Error pin grid coordinate, pin = xxx`的错误信息, 目前可忽略
 * `gcd.rpt` - iSTA的时序分析报告, 包含WNS, TNS和时序路径
 * `gcd.cap` - iSTA的电容违例报告
 * `gcd.fanout` - iSTA的扇出违例报告
@@ -72,4 +69,4 @@ make sta
 1. 相应的RTL设计
 1. sdc文件
 1. yosys生成的网表文件
-1. iEDA的版本号, 可通过命令`echo exit | LD_LIBRARY_PATH=bin/ ./bin/iEDA -v`获取
+1. iEDA的版本号, 可通过命令`echo exit | ./bin/iEDA -v`获取
