@@ -17,7 +17,7 @@
   * iSTA的内部技术可参考[第一期iEDA Tutorial](https://www.bilibili.com/video/BV1a14y1B7uz)
 * iEDA团队的完整工作可参考以下文章
   * [Xingquan Li, Simin Tao, Zengrong Huang, et al. An Open-Source Intelligent Physical Implementation Toolkit and Library[C]. International Symposium of EDA, 2023.](https://github.com/OSCC-Project/iEDA/blob/master/docs/paper/ISEDA'23-iEDA-final.pdf)
-* 目前支持开源PDK nangate45, 具体可阅读[nangate45的README](nangate45/README.md)
+* 目前支持开源PDK nangate45, 具体可在安装依赖(见下文)后阅读nangate45的README
 
 ## 安装依赖
 
