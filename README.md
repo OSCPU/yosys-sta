@@ -22,8 +22,10 @@
 ## 安装依赖
 
 ```shell
-apt install yosys
-apt install libunwind-dev libyaml-cpp-dev libgomp1 libtcl8.6 # iEDA的依赖库
+apt install -y yosys libunwind-dev libyaml-cpp-dev libgomp1 libtcl8.6 # iEDA的依赖库
+# or
+yum install -y yosys libunwind yaml-cpp libgomp tcl
+
 make init
 ```
 
