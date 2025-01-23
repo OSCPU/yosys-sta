@@ -10,4 +10,4 @@ read_netlist $NETLIST_V
 read_liberty $LIB_FILES
 link_design $DESIGN
 read_sdc  $SDC_FILE
-report_timing
+report_timing -max_path 5
