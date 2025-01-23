@@ -1,0 +1,13 @@
+set FOUNDARY_PATH           "$PROJ_HOME/pdk/nangate45"
+set LIB_FILE                "$FOUNDARY_PATH/lib/Nangate45_typ.lib"
+set TECH_LEF_FILE           "$FOUNDARY_PATH/lef/Nangate45_tech.lef"
+set STDCELL_LEF_FILE        "$FOUNDARY_PATH/lef/Nangate45_stdcell.lef"
+set BLACKBOX_V_FILE         "$FOUNDARY_PATH/verilog/blackbox.v"
+set CLKGATE_MAP_FILE        "$FOUNDARY_PATH/verilog/cells_clkgate.v"
+set LATCH_MAP_FILE          "$FOUNDARY_PATH/verilog/cells_latch.v"
+set BLACKBOX_MAP_TCL        "$FOUNDARY_PATH/blackbox_map.tcl"
+
+set TIEHI_CELL_AND_PORT     "LOGIC1_X1 Z"
+set TIELO_CELL_AND_PORT     "LOGIC0_X1 Z"
+set MIN_BUF_CELL_AND_PORTS  "BUF_X1 A Z"
+set INO_INSERT_BUF          "BUF_X8"

@@ -1,4 +1,4 @@
 bin/
-nangate45/
+/pdk/
 result
 *.log

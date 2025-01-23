@@ -2,17 +2,13 @@
 #   set parameter
 #===========================================================
 set DESIGN                  [lindex $argv 0]
-set VERILOG_FILES           [string map {"\"" ""} [lindex $argv 1]]
-set NETLIST_SYN_V           [lindex $argv 2]
+set PDK                     [lindex $argv 1]
+set VERILOG_FILES           [string map {"\"" ""} [lindex $argv 2]]
+set NETLIST_SYN_V           [lindex $argv 3]
 set VERILOG_INCLUDE_DIRS    ""
 set RESULT_DIR              [file dirname $NETLIST_SYN_V]
 
-set FOUNDARY_PATH           "[file dirname [info script]]/../nangate45"
-set MERGED_LIB_FILE         "$FOUNDARY_PATH/lib/merged.lib"
-set BLACKBOX_V_FILE         "$FOUNDARY_PATH/verilog/blackbox.v"
-set CLKGATE_MAP_FILE        "$FOUNDARY_PATH/verilog/cells_clkgate.v"
-set LATCH_MAP_FILE          "$FOUNDARY_PATH/verilog/cells_latch.v"
-set BLACKBOX_MAP_TCL        "$FOUNDARY_PATH/blackbox_map.tcl"
+source "[file dirname [info script]]/common.tcl"
 
 set CLK_FREQ_MHZ            500
 if {[info exists env(CLK_FREQ_MHZ)]} {
@@ -21,10 +17,6 @@ if {[info exists env(CLK_FREQ_MHZ)]} {
   puts "Warning: Environment CLK_FREQ_MHZ is not defined. Use $CLK_FREQ_MHZ MHz by default."
 }
 set CLK_PERIOD_NS           [expr 1000.0 / $CLK_FREQ_MHZ]
-
-set TIEHI_CELL_AND_PORT     "LOGIC1_X1 Z"
-set TIELO_CELL_AND_PORT     "LOGIC0_X1 Z"
-set MIN_BUF_CELL_AND_PORTS  "BUF_X1 A Z"
 
 #===========================================================
 #   main running
@@ -55,7 +47,9 @@ foreach file $VERILOG_FILES {
 
 # Read blackbox stubs of standard/io/ip/memory cells. This allows for standard/io/ip/memory cell (or
 # structural netlist support in the input verilog
-read_verilog $BLACKBOX_V_FILE
+if {[info exist BLACKBOX_V_FILE]} {
+  read_verilog $BLACKBOX_V_FILE
+}
 
 # Apply toplevel parameters (if exist
 if {[info exist VERILOG_TOP_PARAMS]} {
@@ -88,12 +82,12 @@ if {[info exist LATCH_MAP_FILE]} {
 }
 
 # technology mapping of flip-flops
-dfflibmap -liberty $MERGED_LIB_FILE
+dfflibmap -liberty $LIB_FILE
 opt -undriven
 
 # Technology mapping for cells
 abc -D [expr $CLK_PERIOD_NS * 1000] \
-    -liberty $MERGED_LIB_FILE \
+    -liberty $LIB_FILE \
     -showtmp \
     -script $abc_script
 
@@ -117,7 +111,7 @@ opt_clean -purge
 
 # reports
 tee -o $RESULT_DIR/synth_check.txt check
-tee -o $RESULT_DIR/synth_stat.txt stat -liberty $MERGED_LIB_FILE
+tee -o $RESULT_DIR/synth_stat.txt stat -liberty $LIB_FILE
 
 # write synthesized design
 write_verilog -noattr -noexpr -nohex -nodec $NETLIST_SYN_V
