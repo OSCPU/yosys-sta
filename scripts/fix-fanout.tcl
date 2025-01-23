@@ -11,4 +11,4 @@ lef_init -path $PROJ_PATH/nangate45/lef/NangateOpenCellLibrary.macro.mod.lef
 
 verilog_init -path $NETLIST_V -top $DESIGN
 run_no_fixfanout -config $PROJ_PATH/scripts/fix-fanout.json
-netlist_save -path $NETLIST_FIXED_V -exclude_cell_names {}
+netlist_save -path $NETLIST_FIXED_V -exclude_cell_names {} -add_space
