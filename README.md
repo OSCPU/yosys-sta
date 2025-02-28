@@ -69,7 +69,10 @@ make sta
 有两种操作方式：
 1. 命令行传参方式, 在命令行中指定其他设计的信息
    ```shell
-   make sta DESIGN=mydesign SDC_FILE=/path/to/my.sdc RTL_FILES="/path/to/mydesign.v /path/to/xxx.v ..." CLK_FREQ_MHZ=100
+   make -C /path/to/this_repo sta \
+       DESIGN=mydesign SDC_FILE=/path/to/my.sdc \
+       CLK_FREQ_MHZ=100 CLK_PORT_NAME=clk O=/path/to/pwd \
+       RTL_FILES="/path/to/mydesign.v /path/to/xxx.v ..."
    ```
 1. 修改变量方式, 在`Makefile`中修改上述变量, 然后运行`make sta`
 
