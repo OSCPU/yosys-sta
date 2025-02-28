@@ -68,10 +68,13 @@ make sta
 
 有两种操作方式：
 1. 命令行传参方式, 在命令行中指定其他设计的信息
-   ```shell
-   make sta DESIGN=mydesign SDC_FILE=/path/to/my.sdc RTL_FILES="/path/to/mydesign.v /path/to/xxx.v ..." CLK_FREQ_MHZ=100
-   ```
-1. 修改变量方式, 在`Makefile`中修改上述变量, 然后运行`make sta`
+```shell
+make -C /path/to/this_repo sta \
+    DESIGN=mydesign SDC_FILE=/path/to/my.sdc \
+    CLK_FREQ_MHZ=100 CLK_PORT_NAME=clk O=/path/to/pwd \
+    RTL_FILES="/path/to/mydesign.v /path/to/xxx.v ..."
+```
+2. 修改变量方式, 在`Makefile`中修改上述变量, 然后运行`make sta`
 
 注意:
 * 在`RTL_FILES`的文件中必须包含一个名为`DESIGN`的module
@@ -81,6 +84,6 @@ make sta
 
 如果在运行时遇到bug, 可在issue中报告问题, 并提供如下信息:
 1. 相应的RTL设计
-1. sdc文件
-1. yosys生成的网表文件
-1. iEDA的版本号, 可通过命令`echo exit | ./bin/iEDA -v`获取
+2. sdc文件
+3. yosys生成的网表文件
+4. iEDA的版本号, 可通过命令`echo exit | ./bin/iEDA -v`获取
