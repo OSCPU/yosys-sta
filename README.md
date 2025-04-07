@@ -1,11 +1,12 @@
 # yosys-sta
 
-使用开源EDA工具进行ASIC综合和时序分析, 用于了解前端RTL设计的时序情况并快速迭代.
+使用开源EDA工具进行ASIC综合, 时序分析和功耗分析, 用于了解前端RTL设计的PPA并快速迭代.
 用到的开源EDA工具包括:
 * 开源综合器Yosys
 * iEDA团队自研的开源EDA工具集, 这些工具会被编译成一个二进制文件`iEDA`, 本项目中用到的子工具包括
   * 网表优化工具iNO
   * 静态时序分析(STA)工具iSTA
+  * 功耗分析工具iPA
 
 * 根据iEDA团队的介绍, iSTA有以下优势
   1. 通过TCL命令操作, 使用简单, 能满足常用的时序分析需求
@@ -21,11 +22,16 @@
 
 ## 安装依赖
 
-```shell
-apt install -y yosys libunwind-dev libyaml-cpp-dev libgomp1 libtcl8.6 # iEDA的依赖库
-# or
-yum install -y yosys libunwind yaml-cpp libgomp tcl
+安装yosys, 版本要求不低于0.48. 建议从[这个链接][oss-cad-suite]下载相应的工具包.
+解压缩后, 将`path-to-oss-cad-suite/bin`加入到环境变量`PATH`中, 即可调用工具包中的yosys.
 
+[oss-cad-suite]: https://github.com/YosysHQ/oss-cad-suite-build/releases
+
+安装其他依赖并下载组件:
+```shell
+apt install libunwind-dev libgomp1 libgflags-dev libgoogle-glog-dev # iEDA的依赖库
+# or
+yum install libunwind libgomp libgflags libgoogle-glog
 make init
 ```
 
@@ -44,12 +50,18 @@ make sta
 * `yosys.log` - Yosys综合的完整日志
 * `gcd.netlist.fixed.v` - iNO优化扇出后的网表文件
 * `fix-fanout.log` - iNO优化扇出的日志
+* `synth_stat_fixed.txt` - 优化扇出后Yosys综合的面积报告
+* `synth_check_fixed.txt` - 优化扇出后Yosys综合的检查报告
+* `yosys-fixed.log` - 优化扇出后Yosys综合的完整日志
 * `gcd.rpt` - iSTA的时序分析报告, 包含WNS, TNS和时序路径
 * `gcd.cap` - iSTA的电容违例报告
 * `gcd.fanout` - iSTA的扇出违例报告
 * `gcd.trans` - iSTA的转换时间违例报告
 * `gcd_hold.skew` - iSTA的hold模式下时钟偏斜报告
 * `gcd_setup.skew` - iSTA的setup模式下时钟偏斜报告
+* `gcd.pwr` - iSTA的总体功耗报告
+* `gcd_instance.pwr` - iSTA的标准单元级别功耗报告
+* `gcd_instance.csv` - iSTA的标准单元级别功耗报告, CSV格式
 * `sta.log` - iSTA的日志
 
 ## 评估其他设计
