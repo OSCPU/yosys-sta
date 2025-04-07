@@ -12,3 +12,4 @@ read_liberty $LIB_FILE
 link_design $DESIGN
 read_sdc  $SDC_FILE
 report_timing -max_path 5
+report_power -toggle 0.1
