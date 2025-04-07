@@ -26,7 +26,7 @@ yosys -import
 # Don't change these unless you know what you are doing
 set stat_ext    "_stat.rep"
 set gl_ext      "_gl.v"
-set abc_script  "+strash;ifraig;retime,-D,{D},-M,6;strash;dch,-f;map,-p,-M,1,{D},-f;topo;dnsize;buffer,-p;upsize;"
+set abc_script  "+strash;ifraig;retime,{D},-M,6;strash;dch,-f;map,-p,-M,1,{D},-f;topo;dnsize;buffer,-p;upsize;"
 
 # Setup verilog include directories
 set vIdirsArgs ""
@@ -71,28 +71,32 @@ if {[info exist BLACKBOX_MAP_TCL]} {
 }
 
 # generic synthesis
-synth  -top $DESIGN
+synth -top $DESIGN -flatten
+
+# make better name
+autoname
+renames -wire
+
+# Splitting nets resolves unwanted compound assign statements in netlist (assign {..} = {..}
+splitnets -ports
 
 # Optimize the design
 opt -purge
 
-# technology mapping of latches
-if {[info exist LATCH_MAP_FILE]} {
-  techmap -map $LATCH_MAP_FILE
-}
+# technology mapping for clockgate
+clockgate -liberty $LIB_FILE
 
-# technology mapping of flip-flops
+# technology mapping for flip-flops
 dfflibmap -liberty $LIB_FILE
 opt -undriven
 
-# Technology mapping for cells
+# technology mapping for cells
 abc -D [expr $CLK_PERIOD_NS * 1000] \
     -liberty $LIB_FILE \
     -showtmp \
     -script $abc_script
 
-
-# technology mapping of constant hi- and/or lo-drivers
+# technology mapping for constant hi- and/or lo-drivers
 hilomap -singleton \
         -hicell {*}$TIEHI_CELL_AND_PORT \
         -locell {*}$TIELO_CELL_AND_PORT
@@ -100,17 +104,14 @@ hilomap -singleton \
 # replace undef values with defined constants
 setundef -zero
 
-# Splitting nets resolves unwanted compound assign statements in netlist (assign {..} = {..}
-splitnets
-
-# insert buffer cells for pass through wires
-insbuf -buf {*}$MIN_BUF_CELL_AND_PORTS
-
 # remove unused cells and wires
 opt_clean -purge
 
+# load liberty file before checking
+read_liberty -lib $LIB_FILE
+
 # reports
-tee -o $RESULT_DIR/synth_check.txt check
+tee -o $RESULT_DIR/synth_check.txt check -mapped
 tee -o $RESULT_DIR/synth_stat.txt stat -liberty $LIB_FILE
 
 # write synthesized design
