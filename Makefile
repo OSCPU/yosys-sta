@@ -1,4 +1,5 @@
 PROJ_PATH = $(shell pwd)
+SHELL := /bin/bash
 
 DESIGN ?= gcd
 SDC_FILE ?= $(PROJ_PATH)/example/gcd.sdc
@@ -22,12 +23,12 @@ $(NETLIST_SYN_V): $(RTL_FILES) $(SCRIPT_DIR)/yosys.tcl
 
 fix-fanout: $(NETLIST_FIXED_V)
 $(NETLIST_FIXED_V): $(SCRIPT_DIR)/fix-fanout.tcl $(SDC_FILE) $(NETLIST_SYN_V)
-	./bin/iEDA -script $^ $(DESIGN) $(PDK) $@ 2>&1 | tee $(RESULT_DIR)/fix-fanout.log
+	set -o pipefail && ./bin/iEDA -script $^ $(DESIGN) $(PDK) $@ 2>&1 | tee $(RESULT_DIR)/fix-fanout.log
 	echo tcl $(SCRIPT_DIR)/yosys-area.tcl $(DESIGN) $(PDK) $@ | yosys -l $(@D)/yosys-area.log -s -
 
 sta: $(TIMING_RPT)
 $(TIMING_RPT): $(SCRIPT_DIR)/sta.tcl $(SDC_FILE) $(NETLIST_FIXED_V)
-	./bin/iEDA -script $^ $(DESIGN) $(PDK) 2>&1 | tee $(RESULT_DIR)/sta.log
+	set -o pipefail && ./bin/iEDA -script $^ $(DESIGN) $(PDK) 2>&1 | tee $(RESULT_DIR)/sta.log
 
 clean:
 	-rm -rf result/
