@@ -15,8 +15,10 @@ NETLIST_SYN_V   = $(RESULT_DIR)/$(DESIGN).netlist.syn.v
 NETLIST_FIXED_V = $(RESULT_DIR)/$(DESIGN).netlist.fixed.v
 TIMING_RPT = $(RESULT_DIR)/$(DESIGN).rpt
 
-init:
+init: .stamp.init
+.stamp.init:
 	bash -c "$$(wget -O - https://ysyx.oscc.cc/slides/resources/scripts/init-yosys-sta.sh)"
+	@touch .stamp.init
 
 syn: $(NETLIST_SYN_V)
 $(NETLIST_SYN_V): $(RTL_FILES) $(SCRIPT_DIR)/yosys.tcl
