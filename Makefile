@@ -1,20 +1,24 @@
 PROJ_PATH = $(shell pwd)
 SHELL := /bin/bash
 
+O ?= $(PROJ_PATH)
 DESIGN ?= gcd
-SDC_FILE ?= $(PROJ_PATH)/example/gcd.sdc
+SDC_FILE ?= $(PROJ_PATH)/scripts/default.sdc
 RTL_FILES ?= $(shell find $(PROJ_PATH)/example -name "*.v")
 export CLK_FREQ_MHZ ?= 500
+export CLK_PORT_NAME ?= clk
 PDK = nangate45
 
-RESULT_DIR = $(PROJ_PATH)/result/$(DESIGN)-$(CLK_FREQ_MHZ)MHz
+RESULT_DIR = $(O)/result/$(DESIGN)-$(CLK_FREQ_MHZ)MHz
 SCRIPT_DIR = $(PROJ_PATH)/scripts
 NETLIST_SYN_V   = $(RESULT_DIR)/$(DESIGN).netlist.syn.v
 NETLIST_FIXED_V = $(RESULT_DIR)/$(DESIGN).netlist.fixed.v
 TIMING_RPT = $(RESULT_DIR)/$(DESIGN).rpt
 
-init:
+init: .stamp.init
+.stamp.init:
 	bash -c "$$(wget -O - https://ysyx.oscc.cc/slides/resources/scripts/init-yosys-sta.sh)"
+	@touch .stamp.init
 
 syn: $(NETLIST_SYN_V)
 $(NETLIST_SYN_V): $(RTL_FILES) $(SCRIPT_DIR)/yosys.tcl
