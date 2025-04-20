@@ -29,9 +29,9 @@
 
 安装其他依赖并下载组件:
 ```shell
-apt install libunwind-dev libgomp1 libgflags-dev libgoogle-glog-dev # iEDA的依赖库
+apt install libunwind-dev liblzma-dev # iEDA的依赖库
 # or
-yum install libunwind libgomp libgflags libgoogle-glog
+yum install libunwind liblzma
 make init
 ```
 
