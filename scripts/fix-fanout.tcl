@@ -7,10 +7,10 @@ set NETLIST_FIXED_V [lindex $argv 4]
 source "[file dirname [info script]]/common.tcl"
 set JSON_FILE "$PROJ_HOME/scripts/fix-fanout.json"
 
-db_init -lib_path $LIB_FILE
+db_init -lib_path [concat $LIB_FILES]
 db_init -sdc_path $SDC_FILE
 tech_lef_init -path $TECH_LEF_FILE
-lef_init -path $STDCELL_LEF_FILE
+lef_init -path [concat $STDCELL_LEF_FILES]
 
 verilog_init -path $NETLIST_V -top $DESIGN
 no_config -config_json_path $JSON_FILE -max_fanout 30 -insert_buffer $INO_INSERT_BUF

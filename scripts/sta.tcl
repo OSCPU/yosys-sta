@@ -8,7 +8,7 @@ source "[file dirname [info script]]/common.tcl"
 
 set_design_workspace $RESULT_DIR
 read_netlist $NETLIST_V
-read_liberty $LIB_FILE
+read_liberty [concat $LIB_FILES]
 link_design $DESIGN
 read_sdc  $SDC_FILE
 report_timing -max_path 5

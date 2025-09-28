@@ -33,7 +33,7 @@ if {[info exists env(CLK_FREQ_MHZ)]} {
 set CLK_PERIOD_NS           [expr 1000.0 / $CLK_FREQ_MHZ]
 set CLK_PERIOD_PS           [expr 1000.0 * $CLK_PERIOD_NS]
 
-set LIBS [concat {*}[lmap lib $LIB_FILE {concat "-liberty" $lib}]]
+set LIBS [concat {*}[lmap lib $LIB_FILES {concat "-liberty" $lib}]]
 
 #===========================================================
 #   set parameter for ABC
@@ -211,7 +211,7 @@ autoname
 splitnets -format __v -ports
 opt_clean -purge
 
-foreach l $LIB_FILE { read_liberty -lib $l }
+foreach l $LIB_FILES { read_liberty -lib $l }
 
 tee -o $RESULT_DIR/synth_check.txt check -mapped
 tee -o $RESULT_DIR/synth_stat.txt stat {*}$LIBS

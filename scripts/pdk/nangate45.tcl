@@ -1,7 +1,7 @@
 set FOUNDARY_PATH           "$PROJ_HOME/pdk/nangate45"
-set LIB_FILE                "$FOUNDARY_PATH/lib/Nangate45_typ.lib"
+set LIB_FILES               [list "$FOUNDARY_PATH/lib/Nangate45_typ.lib"]
+set STDCELL_LEF_FILES       [list "$FOUNDARY_PATH/lef/Nangate45_stdcell.lef"]
 set TECH_LEF_FILE           "$FOUNDARY_PATH/lef/Nangate45_tech.lef"
-set STDCELL_LEF_FILE        "$FOUNDARY_PATH/lef/Nangate45_stdcell.lef"
 set BLACKBOX_V_FILE         "$FOUNDARY_PATH/verilog/blackbox.v"
 set CLKGATE_MAP_FILE        "$FOUNDARY_PATH/verilog/cells_clkgate.v"
 set LATCH_MAP_FILE          "$FOUNDARY_PATH/verilog/cells_latch.v"

@@ -7,7 +7,8 @@ source "[file dirname [info script]]/common.tcl"
 
 yosys -import
 read_verilog $NETLIST_V
-read_liberty -lib $LIB_FILE
+foreach l $LIB_FILES { read_liberty -lib $l }
 hierarchy -check -top $DESIGN
 tee -o $RESULT_DIR/synth_check_fixed.txt check -mapped
-tee -o $RESULT_DIR/synth_stat_fixed.txt stat -liberty $LIB_FILE
+set libs [concat {*}[lmap lib $LIB_FILES {concat "-liberty" $lib}]]
+tee -o $RESULT_DIR/synth_stat_fixed.txt stat {*}$libs
