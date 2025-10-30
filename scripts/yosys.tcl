@@ -34,6 +34,7 @@ set CLK_PERIOD_NS           [expr 1000.0 / $CLK_FREQ_MHZ]
 set CLK_PERIOD_PS           [expr 1000.0 * $CLK_PERIOD_NS]
 
 set LIBS [concat {*}[lmap lib $LIB_FILES {concat "-liberty" $lib}]]
+set EXCLUDE_CELLS [concat {*}[lmap cell $DONT_USE_CELLS {concat "-dont_use" $cell}]]
 
 #===========================================================
 #   set parameter for ABC
@@ -199,9 +200,9 @@ yosys rename -wire -suffix _reg_n t:*DFF*_N*
 # rename all other cells
 autoname t:*DFF* %n
 
-clockgate {*}$LIBS
+clockgate {*}$LIBS {*}$EXCLUDE_CELLS
 
-dfflibmap {*}$LIBS
+dfflibmap {*}$LIBS {*}$EXCLUDE_CELLS
 
 opt -undriven -purge
 
@@ -209,7 +210,7 @@ log "\[INFO\]: USING STRATEGY $strategy_name"
 
 abc -D "$CLK_PERIOD_PS" \
   -constr "$sdc_file" \
-  {*}$LIBS \
+  {*}$LIBS {*}$EXCLUDE_CELLS \
   -script "$strategy_script" \
   -showtmp
 
