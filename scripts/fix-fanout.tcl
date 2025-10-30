@@ -15,4 +15,4 @@ lef_init -path $STDCELL_LEF_FILE
 verilog_init -path $NETLIST_V -top $DESIGN
 no_config -config_json_path $JSON_FILE -max_fanout 30 -insert_buffer $INO_INSERT_BUF
 run_no_fixfanout -config $JSON_FILE
-netlist_save -path $NETLIST_FIXED_V -exclude_cell_names {} -add_space
+netlist_save -path $NETLIST_FIXED_V -exclude_cell_names {}

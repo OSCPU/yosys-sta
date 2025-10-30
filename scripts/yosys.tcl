@@ -208,7 +208,7 @@ setundef -zero
 #     sc_mcu7t5v0__and3_1_A3_Z_gf180mcu_fd_sc_mcu7t5v0__buf_1_I_Z
 autoname
 
-splitnets
+splitnets -format __v -ports
 opt_clean -purge
 
 foreach l $LIB_FILE { read_liberty -lib $l }
