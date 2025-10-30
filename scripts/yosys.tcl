@@ -177,9 +177,17 @@ foreach file $VERILOG_FILES {
   read_verilog -sv $file
 }
 
-synth -top $DESIGN -flatten
+# generic synthesis (coarse)
+synth -top $DESIGN -flatten -run :fine
 
 share -aggressive
+onehot
+muxpack
+opt_demorgan
+opt_ffinv
+
+# generic synthesis (fine)
+synth -run fine:
 
 opt_clean -purge
 
