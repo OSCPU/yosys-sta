@@ -199,6 +199,8 @@ hilomap -singleton -hicell {*}$TIEHI_CELL_AND_PORT -locell {*}$TIELO_CELL_AND_PO
 
 setundef -zero
 
+opt_clean -purge
+
 # Generate public names for the various nets, resulting in very long names that include
 # the full heirarchy, which is preferable to the internal names that are simply
 # sequential numbers such as `_000019_`. Renamed net names can be very long, such as:
@@ -207,6 +209,9 @@ setundef -zero
 #     1_A2_A1_gf180mcu_fd_sc_mcu7t5v0__nand3_1_ZN_A3_gf180mcu_fd_ \
 #     sc_mcu7t5v0__and3_1_A3_Z_gf180mcu_fd_sc_mcu7t5v0__buf_1_I_Z
 autoname
+
+# write synthesized design for netlist simulation without splitting module ports
+write_verilog -noattr -noexpr -nohex -nodec -defparam $NETLIST_SYN_V.sim
 
 splitnets -format __v -ports
 opt_clean -purge
