@@ -11,29 +11,49 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-yosys -import
 
-# inputs expected as env vars
-#
-set buffering $::env(SYNTH_BUFFERING)
-set sizing $::env(SYNTH_SIZING)
-set vtop $::env(DESIGN_NAME)
-set sclib $::env(LIB_SYNTH)
+#===========================================================
+#   set parameter
+#===========================================================
+set DESIGN                  [lindex $argv 0]
+set PDK                     [lindex $argv 1]
+set VERILOG_FILES           [string map {"\"" ""} [lindex $argv 2]]
+set NETLIST_SYN_V           [lindex $argv 3]
+set VERILOG_INCLUDE_DIRS    ""
+set RESULT_DIR              [file dirname $NETLIST_SYN_V]
 
-# ns expected (in sdc as well)
-set clock_period [expr {$::env(CLOCK_PERIOD) * 1000}]; # ns -> ps
+source "[file dirname [info script]]/common.tcl"
 
-set driver  $::env(SYNTH_DRIVING_CELL)
+set CLK_FREQ_MHZ            500
+if {[info exists env(CLK_FREQ_MHZ)]} {
+  set CLK_FREQ_MHZ          $::env(CLK_FREQ_MHZ)
+} else {
+  puts "Warning: Environment CLK_FREQ_MHZ is not defined. Use $CLK_FREQ_MHZ MHz by default."
+}
+set CLK_PERIOD_NS           [expr 1000.0 / $CLK_FREQ_MHZ]
+set CLK_PERIOD_PS           [expr 1000.0 * $CLK_PERIOD_NS]
+
+set LIBS [concat {*}[lmap lib $LIB_FILE {concat "-liberty" $lib}]]
+
+#===========================================================
+#   set parameter for ABC
+#===========================================================
+
+set buffering 1
+set sizing 1
+set SYNTH_STRATEGY "DELAY 4"
+
+set driver  $INO_INSERT_BUF
 
 # fF -> pF
-set cap_load $::env(OUTPUT_CAP_LOAD)
+set cap_load 1.6
 
-# input pin cap of IN_3VX8
-set max_FO $::env(MAX_FANOUT_CONSTRAINT)
+# input pin cap of BUF
+set max_FO 24
 set max_TR 0
 
 # Create SDC File
-set sdc_file $::env(synthesis_tmpfiles)/synthesis.sdc
+set sdc_file $RESULT_DIR/abc.sdc
 set outfile [open ${sdc_file} w]
 puts $outfile "set_driving_cell ${driver}"
 puts $outfile "set_load ${cap_load}"
@@ -58,16 +78,16 @@ set abc_resyn3        "balance;resub;resub,-K,6;balance;resub,-z;resub,-z,-K,6;b
 set abc_resyn2rs      "${abc_b};${abc_rs_K},6;${abc_rw};${abc_rs_K},6,-N,2;${abc_rf};${abc_rs_K},8;${abc_rw};${abc_rs_K},10;${abc_rwz};${abc_rs_K},10,-N,2;${abc_b},${abc_rs_K},12;${abc_rfz};${abc_rs_K},12,-N,2;${abc_rwz};${abc_b}"
 
 set abc_choice        "fraig_store; ${abc_resyn2}; fraig_store; ${abc_resyn2}; fraig_store; fraig_restore"
-set abc_choice2      "fraig_store; balance; fraig_store; ${abc_resyn2}; fraig_store; ${abc_resyn2}; fraig_store; ${abc_resyn2}; fraig_store; fraig_restore"
+set abc_choice2       "fraig_store; balance; fraig_store; ${abc_resyn2}; fraig_store; ${abc_resyn2}; fraig_store; ${abc_resyn2}; fraig_store; fraig_restore"
 
 set abc_map_old_cnt			"map,-p,-a,-B,0.2,-A,0.9,-M,0"
-set abc_map_old_dly         "map,-p,-B,0.2,-A,0.9,-M,0"
-set abc_retime_area         "retime,-D,{D},-M,5"
-set abc_retime_dly          "retime,-D,{D},-M,6"
-set abc_map_new_area        "amap,-m,-Q,0.1,-F,20,-A,20,-C,5000"
+set abc_map_old_dly     "map,-p,-B,0.2,-A,0.9,-M,0"
+set abc_retime_area     "retime,-D,{D},-M,5"
+set abc_retime_dly      "retime,-D,{D},-M,6"
+set abc_map_new_area    "amap,-m,-Q,0.1,-F,20,-A,20,-C,5000"
 
-set abc_area_recovery_1       "${abc_choice}; map;"
-set abc_area_recovery_2       "${abc_choice2}; map;"
+set abc_area_recovery_1 "${abc_choice}; map;"
+set abc_area_recovery_2 "${abc_choice2}; map;"
 
 set map_old_cnt			    "map,-p,-a,-B,0.2,-A,0.9,-M,0"
 set map_old_dly			    "map,-p,-B,0.2,-A,0.9,-M,0"
@@ -82,9 +102,9 @@ if {$buffering==1} {
   }
   set abc_fine_tune		"buffer,-N,${max_FO}${max_tr_arg};upsize,{D};dnsize,{D}"
 } elseif {$sizing} {
-  set abc_fine_tune       "upsize,{D};dnsize,{D}"
+  set abc_fine_tune   "upsize,{D};dnsize,{D}"
 } else {
-  set abc_fine_tune       ""
+  set abc_fine_tune   ""
 }
 
 
@@ -108,12 +128,12 @@ set area_scripts [list \
   "+read_constr,${sdc_file};strash;dch;map -B 0.9;topo;stime -c;buffer -c -N ${max_FO};upsize -c;dnsize -c;stime,-p;print_stats -m" \
   ]
 
-set strategy_parts [split $::env(SYNTH_STRATEGY)]
+set strategy_parts [split $SYNTH_STRATEGY]
 
 proc synth_strategy_format_err { } {
   upvar area_scripts area_scripts
   upvar delay_scripts delay_scripts
-  log -stderr "\[ERROR] Misformatted SYNTH_STRATEGY (\"$::env(SYNTH_STRATEGY)\")."
+  log -stderr "\[ERROR] Misformatted SYNTH_STRATEGY (\"$SYNTH_STRATEGY\")."
   log -stderr "\[ERROR] Correct format is \"DELAY|AREA 0-[expr [llength $delay_scripts]-1]|0-[expr [llength $area_scripts]-1]\"."
   exit 1
 }
@@ -147,9 +167,14 @@ if { $strategy_type == "DELAY" } {
   set strategy_script [lindex $area_scripts $strategy_type_idx]
 }
 
-# Start Synthesis
-for { set i 0 } { $i < [llength $::env(VERILOG_FILES)] } { incr i } {
-  read_verilog -sv [lindex $::env(VERILOG_FILES) $i]
+#===========================================================
+#   main running
+#===========================================================
+yosys -import
+
+# read verilog files
+foreach file $VERILOG_FILES {
+  read_verilog -sv $file
 }
 
 synth -top $DESIGN -flatten
@@ -158,27 +183,21 @@ share -aggressive
 
 opt_clean -purge
 
-dfflibmap -liberty $sclib
+dfflibmap {*}$LIBS
 
 opt -undriven -purge
 
 log "\[INFO\]: USING STRATEGY $strategy_name"
 
-abc -D "$clock_period" \
+abc -D "$CLK_PERIOD_PS" \
   -constr "$sdc_file" \
-  -liberty "$sclib" \
+  {*}$LIBS \
   -script "$strategy_script" \
   -showtmp
 
-hilomap -hicell {*}$::env(SYNTH_TIEHI_PORT) -locell {*}$::env(SYNTH_TIELO_PORT)
+hilomap -hicell {*}$TIEHI_CELL_AND_PORT -locell {*}$TIELO_CELL_AND_PORT
 
 setundef -zero
-
-splitnets
-opt_clean -purge
-
-check
-stat -top $::env(DESIGN_NAME) {*}$sclib
 
 # Generate public names for the various nets, resulting in very long names that include
 # the full heirarchy, which is preferable to the internal names that are simply
@@ -189,4 +208,12 @@ stat -top $::env(DESIGN_NAME) {*}$sclib
 #     sc_mcu7t5v0__and3_1_A3_Z_gf180mcu_fd_sc_mcu7t5v0__buf_1_I_Z
 autoname
 
-write_verilog -noattr -noexpr -nohex -nodec -defparam $::env(SAVE_NETLIST)
+splitnets
+opt_clean -purge
+
+foreach l $LIB_FILE { read_liberty -lib $l }
+
+tee -o $RESULT_DIR/synth_check.txt check -mapped
+tee -o $RESULT_DIR/synth_stat.txt stat {*}$LIBS
+
+write_verilog -noattr -noexpr -nohex -nodec -defparam $NETLIST_SYN_V
