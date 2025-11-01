@@ -32,11 +32,6 @@ set cap_load $::env(OUTPUT_CAP_LOAD)
 set max_FO $::env(MAX_FANOUT_CONSTRAINT)
 set max_TR 0
 
-# Don't change these unless you know what you are doing
-set STAT_EXT    "stat.rpt"
-set CHK_EXT    "chk.rpt"
-
-
 # Create SDC File
 set sdc_file $::env(synthesis_tmpfiles)/synthesis.sdc
 set outfile [open ${sdc_file} w]
@@ -145,12 +140,11 @@ if { $strategy_type == "AREA" && $strategy_type_idx >= [llength $area_scripts] }
   synth_strategy_format_err
 }
 
+set strategy_name "$strategy_type-$strategy_type_idx"
 if { $strategy_type == "DELAY" } {
   set strategy_script [lindex $delay_scripts $strategy_type_idx]
-  set strategy_name "DELAY $strategy_type_idx"
 } else {
   set strategy_script [lindex $area_scripts $strategy_type_idx]
-  set strategy_name "AREA $strategy_type_idx"
 }
 
 # Start Synthesis
@@ -168,69 +162,31 @@ dfflibmap -liberty $sclib
 
 opt -undriven -purge
 
-proc run_strategy {output script strategy_name {postfix_with_strategy 0}} {
-  upvar clock_period clock_period
-  upvar sdc_file sdc
-  upvar sclib lib
+log "\[INFO\]: USING STRATEGY $strategy_name"
 
-  log "\[INFO\]: USING STRATEGY $strategy_name"
+abc -D "$clock_period" \
+  -constr "$sdc_file" \
+  -liberty "$sclib" \
+  -script "$strategy_script" \
+  -showtmp
 
-  set strategy_escaped [string map {" " _} $strategy_name]
+hilomap -hicell {*}$::env(SYNTH_TIEHI_PORT) -locell {*}$::env(SYNTH_TIELO_PORT)
 
-  design -load checkpoint
+setundef -zero
 
-  abc -D "$clock_period" \
-    -constr "$sdc" \
-    -liberty "$lib" \
-    -script "$script" \
-    -showtmp
+splitnets
+opt_clean -purge
 
-  setundef -zero
+check
+stat -top $::env(DESIGN_NAME) {*}$sclib
 
-  hilomap -hicell {*}$::env(SYNTH_TIEHI_PORT) -locell {*}$::env(SYNTH_TIELO_PORT)
+# Generate public names for the various nets, resulting in very long names that include
+# the full heirarchy, which is preferable to the internal names that are simply
+# sequential numbers such as `_000019_`. Renamed net names can be very long, such as:
+#     manual_reset_gf180mcu_fd_sc_mcu7t5v0__dffq_1_Q_D_gf180mcu_ \
+#     fd_sc_mcu7t5v0__nor3_1_ZN_A1_gf180mcu_fd_sc_mcu7t5v0__aoi21_ \
+#     1_A2_A1_gf180mcu_fd_sc_mcu7t5v0__nand3_1_ZN_A3_gf180mcu_fd_ \
+#     sc_mcu7t5v0__and3_1_A3_Z_gf180mcu_fd_sc_mcu7t5v0__buf_1_I_Z
+autoname
 
-  if { $::env(SYNTH_SPLITNETS) } {
-    splitnets
-    opt_clean -purge
-  }
-
-  if { $::env(SYNTH_BUFFER_DIRECT_WIRES) } {
-    insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
-  }
-
-  set stat_libs ""
-  foreach stat_lib "$::env(LIB_SYNTH_NO_PG)" {
-    set stat_libs "$stat_libs -liberty $stat_lib"
-  }
-  if { [info exists ::env(EXTRA_LIBS)] } {
-    foreach stat_lib "$::env(EXTRA_LIBS)" {
-      set stat_libs "$stat_libs -liberty $stat_lib"
-    }
-  }
-  global CHK_EXT
-  global STAT_EXT
-  tee -o "$::env(synth_report_prefix).$strategy_escaped.$CHK_EXT" check
-  tee -o "$::env(synth_report_prefix).$strategy_escaped.$STAT_EXT" stat -top $::env(DESIGN_NAME) {*}$stat_libs
-
-  if { [info exists ::env(SYNTH_AUTONAME)] && $::env(SYNTH_AUTONAME) } {
-    # Generate public names for the various nets, resulting in very long names that include
-    # the full heirarchy, which is preferable to the internal names that are simply
-    # sequential numbers such as `_000019_`. Renamed net names can be very long, such as:
-    #     manual_reset_gf180mcu_fd_sc_mcu7t5v0__dffq_1_Q_D_gf180mcu_ \
-    #     fd_sc_mcu7t5v0__nor3_1_ZN_A1_gf180mcu_fd_sc_mcu7t5v0__aoi21_ \
-    #     1_A2_A1_gf180mcu_fd_sc_mcu7t5v0__nand3_1_ZN_A3_gf180mcu_fd_ \
-    #     sc_mcu7t5v0__and3_1_A3_Z_gf180mcu_fd_sc_mcu7t5v0__buf_1_I_Z
-    autoname
-  }
-
-  if { $postfix_with_strategy } {
-    set output "$output.$strategy_escaped.nl.v"
-  }
-
-  write_verilog -noattr -noexpr -nohex -nodec -defparam $output
-  design -reset
-}
-
-design -save checkpoint
-
-run_strategy "$::env(SAVE_NETLIST)" "$strategy_script" "$strategy_name"
+write_verilog -noattr -noexpr -nohex -nodec -defparam $::env(SAVE_NETLIST)
