@@ -19,46 +19,6 @@ set buffering $::env(SYNTH_BUFFERING)
 set sizing $::env(SYNTH_SIZING)
 set vtop $::env(DESIGN_NAME)
 set sclib $::env(LIB_SYNTH)
-if {[info exists ::env(DFF_LIB_SYNTH)]} {
-  set dfflib $::env(DFF_LIB_SYNTH)
-} else {
-  set dfflib $sclib
-}
-
-if { [info exists ::env(SYNTH_DEFINES) ] } {
-  foreach define $::env(SYNTH_DEFINES) {
-    log "Defining $define"
-    verilog_defines -D$define
-  }
-}
-
-set vIdirsArgs ""
-if {[info exist ::env(VERILOG_INCLUDE_DIRS)]} {
-  foreach dir $::env(VERILOG_INCLUDE_DIRS) {
-    lappend vIdirsArgs "-I$dir"
-  }
-  set vIdirsArgs [join $vIdirsArgs]
-}
-
-if { $::env(SYNTH_READ_BLACKBOX_LIB) } {
-  log "Reading $::env(LIB_SYNTH_COMPLETE_NO_PG) as a blackbox"
-  foreach lib $::env(LIB_SYNTH_COMPLETE_NO_PG) {
-    read_liberty -lib -ignore_miss_dir -setattr blackbox $lib
-  }
-}
-
-if { [info exists ::env(EXTRA_LIBS) ] } {
-  foreach lib $::env(EXTRA_LIBS) {
-    read_liberty -lib -ignore_miss_dir -setattr blackbox $lib
-  }
-}
-
-if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
-  foreach verilog_file $::env(VERILOG_FILES_BLACKBOX) {
-    read_verilog -sv -lib {*}$vIdirsArgs $verilog_file
-  }
-}
-
 
 # ns expected (in sdc as well)
 set clock_period [expr {$::env(CLOCK_PERIOD) * 1000}]; # ns -> ps
@@ -71,15 +31,6 @@ set cap_load $::env(OUTPUT_CAP_LOAD)
 # input pin cap of IN_3VX8
 set max_FO $::env(MAX_FANOUT_CONSTRAINT)
 set max_TR 0
-if { [info exist ::env(MAX_TRANSITION_CONSTRAINT)]} {
-  set max_TR [expr {$::env(MAX_TRANSITION_CONSTRAINT) * 1000}]; # ns -> ps
-}
-
-
-# Mapping parameters
-set A_factor  0.00
-set B_factor  0.88
-set F_factor  0.00
 
 # Don't change these unless you know what you are doing
 set STAT_EXT    "stat.rpt"
@@ -162,8 +113,6 @@ set area_scripts [list \
   "+read_constr,${sdc_file};strash;dch;map -B 0.9;topo;stime -c;buffer -c -N ${max_FO};upsize -c;dnsize -c;stime,-p;print_stats -m" \
   ]
 
-set all_scripts [list {*}$delay_scripts {*}$area_scripts]
-
 set strategy_parts [split $::env(SYNTH_STRATEGY)]
 
 proc synth_strategy_format_err { } {
@@ -204,54 +153,12 @@ if { $strategy_type == "DELAY" } {
   set strategy_name "AREA $strategy_type_idx"
 }
 
-# Get Adder Type
-set adder_type $::env(SYNTH_ADDER_TYPE)
-if { !($adder_type in [list "YOSYS" "FA" "RCA" "CSA"]) } {
-  log -stderr "\[ERROR] Misformatted SYNTH_ADDER_TYPE (\"$::env(SYNTH_ADDER_TYPE)\")."
-  log -stderr "\[ERROR] Correct format is \"YOSYS|FA|RCA|CSA\"."
-  exit 1
-}
-
 # Start Synthesis
 for { set i 0 } { $i < [llength $::env(VERILOG_FILES)] } { incr i } {
-  read_verilog -sv {*}$vIdirsArgs [lindex $::env(VERILOG_FILES) $i]
+  read_verilog -sv [lindex $::env(VERILOG_FILES) $i]
 }
-
-if { [info exists ::env(SYNTH_PARAMETERS) ] } {
-  foreach define $::env(SYNTH_PARAMETERS) {
-    set param_and_value [split $define "="]
-    lassign $param_and_value param value
-    chparam -set $param $value $vtop
-  }
-}
-
-select -module $vtop
-show -format dot -prefix $::env(synthesis_tmpfiles)/hierarchy
-select -clear
 
 hierarchy -check -top $vtop
-
-# Infer tri-state buffers.
-set tbuf_map false
-if { [info exists ::env(TRISTATE_BUFFER_MAP)] } {
-  if { [file exists $::env(TRISTATE_BUFFER_MAP)] } {
-    set tbuf_map true
-    tribuf
-  } else {
-    log "WARNING: TRISTATE_BUFFER_MAP is defined but could not be found: $::env(TRISTATE_BUFFER_MAP)"
-  }
-}
-
-# Handle technology mapping of RCS/CSA adders
-if { $adder_type == "RCA"} {
-  if { [info exists ::env(RIPPLE_CARRY_ADDER_MAP)] && [file exists $::env(RIPPLE_CARRY_ADDER_MAP)] } {
-    techmap -map $::env(RIPPLE_CARRY_ADDER_MAP)
-  }
-} elseif { $adder_type == "CSA"} {
-  if { [info exists ::env(CARRY_SELECT_ADDER_MAP)] && [file exists $::env(CARRY_SELECT_ADDER_MAP)] } {
-    techmap -map $::env(CARRY_SELECT_ADDER_MAP)
-  }
-}
 
 # taken from https://github.com/YosysHQ/yosys/blob/master/techlibs/common/synth.cc
 # <synth> split to run check -assert in the middle
@@ -269,9 +176,7 @@ proc_memwr
 proc_clean
 tee -o "$::env(synth_report_prefix)_pre_synth.$CHK_EXT" check
 opt_expr
-if { $::env(SYNTH_NO_FLAT) != 1 } {
-  flatten
-}
+flatten
 opt_expr
 opt_clean
 opt -nodffe -nosdff
@@ -296,55 +201,13 @@ hierarchy -check
 stat
 check
 
-if { $::env(SYNTH_EXTRA_MAPPING_FILE) ne "" } {
-  if { [file exists $::env(SYNTH_EXTRA_MAPPING_FILE)] } {
-    log "\[INFO\] applying mappings in $::env(SYNTH_EXTRA_MAPPING_FILE)"
-    techmap -map $::env(SYNTH_EXTRA_MAPPING_FILE)
-  } else {
-    log -stderr "\[ERROR] file not found $::env(SYNTH_EXTRA_MAPPING_FILE)."
-  }
-}
+share -aggressive
 
-show -format dot -prefix $::env(synthesis_tmpfiles)/post_techmap
-
-if { $::env(SYNTH_SHARE_RESOURCES) } {
-  share -aggressive
-}
-
-set fa_map false
-if { $adder_type == "FA" } {
-  if { [info exists ::env(FULL_ADDER_MAP)] && [file exists $::env(FULL_ADDER_MAP)] } {
-    extract_fa -fa -v
-    extract_fa -ha -v
-    set fa_map true
-  }
-}
-
-opt
 opt_clean -purge
 
-tee -o "$::env(synth_report_prefix)_pre.stat" stat
+dfflibmap -liberty $sclib
 
-# Map tri-state buffers
-if { $tbuf_map } {
-  log {mapping tbuf}
-  techmap -map $::env(TRISTATE_BUFFER_MAP)
-  simplemap
-}
-
-# Map full adders
-if { $fa_map } {
-  techmap -map $::env(FULL_ADDER_MAP)
-}
-
-# Handle technology mapping of latches
-if { [info exists ::env(SYNTH_LATCH_MAP)] && [file exists $::env(SYNTH_LATCH_MAP)] } {
-  techmap -map $::env(SYNTH_LATCH_MAP)
-  simplemap
-}
-
-dfflibmap -liberty $dfflib
-tee -o "$::env(synth_report_prefix)_dff.stat" stat
+opt -undriven -purge
 
 proc run_strategy {output script strategy_name {postfix_with_strategy 0}} {
   upvar clock_period clock_period
@@ -411,65 +274,4 @@ proc run_strategy {output script strategy_name {postfix_with_strategy 0}} {
 
 design -save checkpoint
 
-# Explore/Finalize
-if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
-  for { set index 0 }  { $index < [llength $delay_scripts] }  { incr index } {
-    set name "DELAY $index"
-    run_strategy\
-      "$::env(synthesis_results)/$::env(DESIGN_NAME)"\
-      [lindex $delay_scripts $index]\
-      "$name"\
-      1
-  }
-
-  for { set index 0 }  { $index < [llength $area_scripts] }  { incr index } {
-    set name "AREA $index"
-    run_strategy\
-      "$::env(synthesis_results)/$::env(DESIGN_NAME)"\
-      [lindex $area_scripts $index]\
-      "$name"\
-      1
-  }
-} else {
-  run_strategy\
-    "$::env(SAVE_NETLIST)"\
-    "$strategy_script"\
-    "$strategy_name"
-
-  if { $::env(SYNTH_NO_FLAT) } {
-    design -reset
-
-    if { [info exists ::env(SYNTH_DEFINES) ] } {
-      foreach define $::env(SYNTH_DEFINES) {
-        log "Defining $define"
-        verilog_defines -D$define
-      }
-    }
-
-    foreach lib $::env(LIB_SYNTH_COMPLETE_NO_PG) {
-      read_liberty -lib -ignore_miss_dir -setattr blackbox $lib
-    }
-
-    if { [info exists ::env(EXTRA_LIBS) ] } {
-      foreach lib $::env(EXTRA_LIBS) {
-        read_liberty -lib -ignore_miss_dir -setattr blackbox $lib
-      }
-    }
-
-    if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
-      foreach verilog_file $::env(VERILOG_FILES_BLACKBOX) {
-        read_verilog -sv -lib {*}$vIdirsArgs $verilog_file
-      }
-    }
-
-    file copy -force $::env(SAVE_NETLIST) $::env(synthesis_results)/$::env(DESIGN_NAME).hierarchy.nl.v
-    read_verilog -sv $::env(SAVE_NETLIST)
-    synth -top $vtop -flatten
-
-    design -save checkpoint
-    run_strategy\
-      "$::env(SAVE_NETLIST)"\
-      "$strategy_script"\
-      "$strategy_name"
-  }
-}
+run_strategy "$::env(SAVE_NETLIST)" "$strategy_script" "$strategy_name"
