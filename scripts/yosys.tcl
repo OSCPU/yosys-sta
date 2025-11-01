@@ -158,48 +158,7 @@ for { set i 0 } { $i < [llength $::env(VERILOG_FILES)] } { incr i } {
   read_verilog -sv [lindex $::env(VERILOG_FILES) $i]
 }
 
-hierarchy -check -top $vtop
-
-# taken from https://github.com/YosysHQ/yosys/blob/master/techlibs/common/synth.cc
-# <synth> split to run check -assert in the middle
-hierarchy -check -auto-top
-proc_clean
-proc_rmdead
-proc_prune
-proc_init
-proc_arst
-proc_rom
-proc_mux
-proc_dlatch
-proc_dff
-proc_memwr
-proc_clean
-tee -o "$::env(synth_report_prefix)_pre_synth.$CHK_EXT" check
-opt_expr
-flatten
-opt_expr
-opt_clean
-opt -nodffe -nosdff
-fsm
-opt
-wreduce
-peepopt
-opt_clean
-alumacc
-share
-opt
-memory -nomap
-opt_clean
-opt -fast -full
-memory_map
-opt -full
-techmap
-opt -fast
-abc -fast
-opt -fast
-hierarchy -check
-stat
-check
+synth -top $DESIGN -flatten
 
 share -aggressive
 
