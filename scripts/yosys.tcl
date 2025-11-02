@@ -183,6 +183,8 @@ share -aggressive
 
 opt_clean -purge
 
+clockgate {*}$LIBS
+
 dfflibmap {*}$LIBS
 
 opt -undriven -purge
