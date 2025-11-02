@@ -191,6 +191,14 @@ synth -run fine:
 
 opt_clean -purge
 
+# split internal nets
+splitnets -format __v
+# rename DFFs from the driven signal
+yosys rename -wire -suffix _reg_p t:*DFF*_P*
+yosys rename -wire -suffix _reg_n t:*DFF*_N*
+# rename all other cells
+autoname t:*DFF* %n
+
 clockgate {*}$LIBS
 
 dfflibmap {*}$LIBS
