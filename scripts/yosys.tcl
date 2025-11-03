@@ -40,18 +40,22 @@ set EXCLUDE_CELLS [concat {*}[lmap cell $DONT_USE_CELLS {concat "-dont_use" $cel
 #   set parameter for ABC
 #===========================================================
 
-set buffering 1
-set sizing 1
 set SYNTH_STRATEGY "DELAY 4"
 
-set driver  $INO_INSERT_BUF
+set buffering 1
+set sizing 1
 
-# fF -> pF
+set driver $INO_INSERT_BUF
+# unit: pF
 set cap_load 1.6
 
 # input pin cap of BUF
 set max_FO 24
 set max_TR 0
+
+#===========================================================
+#   scripts for ABC
+#===========================================================
 
 # Create SDC File
 set sdc_file $RESULT_DIR/abc.sdc
@@ -59,7 +63,6 @@ set outfile [open ${sdc_file} w]
 puts $outfile "set_driving_cell ${driver}"
 puts $outfile "set_load ${cap_load}"
 close $outfile
-
 
 # Assemble Scripts (By Strategy)
 set abc_rs_K    "resub,-K,"
@@ -107,7 +110,6 @@ if {$buffering==1} {
 } else {
   set abc_fine_tune   ""
 }
-
 
 set delay_scripts [list \
   "+fx;mfs;strash;refactor;${abc_resyn2};${abc_retime_dly}; scleanup;${abc_map_old_dly};retime,-D,{D};&get,-n;&st;&dch;&nf;&put;${abc_fine_tune};stime,-p;print_stats -m" \
@@ -190,6 +192,7 @@ opt_ffinv
 # generic synthesis (fine)
 synth -run fine:
 
+# remove unused cells and wires
 opt_clean -purge
 
 # split internal nets
@@ -200,24 +203,31 @@ yosys rename -wire -suffix _reg_n t:*DFF*_N*
 # rename all other cells
 autoname t:*DFF* %n
 
+# technology mapping for clockgate
 clockgate {*}$LIBS {*}$EXCLUDE_CELLS
 
+# technology mapping for flip-flops
 dfflibmap {*}$LIBS {*}$EXCLUDE_CELLS
 
+# optimize the design
 opt -undriven -purge
 
 log "\[INFO\]: USING STRATEGY $strategy_name"
 
+# technology mapping for cells
 abc -D "$CLK_PERIOD_PS" \
   -constr "$sdc_file" \
   {*}$LIBS {*}$EXCLUDE_CELLS \
   -script "$strategy_script" \
   -showtmp
 
+# technology mapping for constant hi- and/or lo-drivers
 hilomap -singleton -hicell {*}$TIEHI_CELL_AND_PORT -locell {*}$TIELO_CELL_AND_PORT
 
+# replace undef values with defined constants
 setundef -zero
 
+# remove unused cells and wires
 opt_clean -purge
 
 # Generate public names for the various nets, resulting in very long names that include
@@ -232,12 +242,18 @@ autoname
 # write synthesized design for netlist simulation without splitting module ports
 write_verilog -noattr -noexpr -nohex -nodec -defparam $NETLIST_SYN_V.sim
 
+# splitting nets resolves unwanted compound assign statements in netlist (assign {..} = {..}
 splitnets -format __v -ports
+
+# remove unused cells and wires
 opt_clean -purge
 
+# load liberty file before checking
 foreach l $LIB_FILES { read_liberty -lib $l }
 
+# reports
 tee -o $RESULT_DIR/synth_check.txt check -mapped
 tee -o $RESULT_DIR/synth_stat.txt stat {*}$LIBS
 
+# write synthesized design
 write_verilog -noattr -noexpr -nohex -nodec -defparam $NETLIST_SYN_V
