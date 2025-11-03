@@ -195,7 +195,7 @@ abc -D "$CLK_PERIOD_PS" \
   -script "$strategy_script" \
   -showtmp
 
-hilomap -hicell {*}$TIEHI_CELL_AND_PORT -locell {*}$TIELO_CELL_AND_PORT
+hilomap -singleton -hicell {*}$TIEHI_CELL_AND_PORT -locell {*}$TIELO_CELL_AND_PORT
 
 setundef -zero
 
