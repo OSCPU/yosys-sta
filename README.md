@@ -4,7 +4,6 @@
 用到的开源EDA工具包括:
 * 开源综合器Yosys
 * iEDA团队自研的开源EDA工具集, 这些工具会被编译成一个二进制文件`iEDA`, 本项目中用到的子工具包括
-  * 网表优化工具iNO
   * 静态时序分析(STA)工具iSTA
   * 功耗分析工具iPA
 
@@ -55,12 +54,11 @@ make sta
 ```
 
 运行后, 可在`result/gcd-500MHz/`目录下查看评估结果. 部分文件说明如下:
-* `gcd.netlist.syn.v` - Yosys综合的网表文件
+* `gcd.netlist.v` - Yosys综合的网表文件
+* `gcd.netlist.v.sim` - Yosys综合的网表文件, 用于网表仿真
 * `synth_stat.txt` - Yosys综合的面积报告
 * `synth_check.txt` - Yosys综合的检查报告, 用户需仔细阅读并决定是否需要排除相应警告
 * `yosys.log` - Yosys综合的完整日志
-* `gcd.netlist.fixed.v` - iNO优化扇出后的网表文件
-* `fix-fanout.log` - iNO优化扇出的日志
 * `synth_stat_fixed.txt` - 优化扇出后Yosys综合的面积报告
 * `synth_check_fixed.txt` - 优化扇出后Yosys综合的检查报告
 * `yosys-fixed.log` - 优化扇出后Yosys综合的完整日志

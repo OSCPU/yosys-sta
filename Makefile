@@ -11,8 +11,7 @@ PDK = icsprout55
 
 RESULT_DIR = $(O)/$(DESIGN)-$(CLK_FREQ_MHZ)MHz
 SCRIPT_DIR = $(PROJ_PATH)/scripts
-NETLIST_SYN_V   = $(RESULT_DIR)/$(DESIGN).netlist.syn.v
-NETLIST_FIXED_V = $(RESULT_DIR)/$(DESIGN).netlist.fixed.v
+NETLIST_SYN_V   = $(RESULT_DIR)/$(DESIGN).netlist.v
 TIMING_RPT = $(RESULT_DIR)/$(DESIGN).rpt
 
 init:
@@ -23,16 +22,11 @@ $(NETLIST_SYN_V): $(RTL_FILES) $(SCRIPT_DIR)/yosys.tcl
 	mkdir -p $(@D)
 	echo tcl $(SCRIPT_DIR)/yosys.tcl $(DESIGN) $(PDK) \"$(RTL_FILES)\" $@ | yosys -g -l $(@D)/yosys.log -s -
 
-fix-fanout: $(NETLIST_FIXED_V)
-$(NETLIST_FIXED_V): $(SCRIPT_DIR)/fix-fanout.tcl $(SDC_FILE) $(NETLIST_SYN_V)
-	set -o pipefail && ./bin/iEDA -script $^ $(DESIGN) $(PDK) $@ 2>&1 | tee $(RESULT_DIR)/fix-fanout.log
-	echo tcl $(SCRIPT_DIR)/yosys-area.tcl $(DESIGN) $(PDK) $@ | yosys -l $(@D)/yosys-fixed.log -s -
-
 sta: $(TIMING_RPT)
-$(TIMING_RPT): $(SCRIPT_DIR)/sta.tcl $(SDC_FILE) $(NETLIST_FIXED_V)
+$(TIMING_RPT): $(SCRIPT_DIR)/sta.tcl $(SDC_FILE) $(NETLIST_SYN_V)
 	set -o pipefail && ./bin/iEDA -script $^ $(DESIGN) $(PDK) 2>&1 | tee $(RESULT_DIR)/sta.log
 
 clean:
 	-rm -rf result/
 
-.PHONY: init syn fix-fanout sta clean
+.PHONY: init syn sta clean

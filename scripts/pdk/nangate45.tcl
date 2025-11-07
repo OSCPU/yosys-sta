@@ -9,6 +9,5 @@ set BLACKBOX_MAP_TCL        "$FOUNDARY_PATH/blackbox_map.tcl"
 
 set TIEHI_CELL_AND_PORT     "LOGIC1_X1 Z"
 set TIELO_CELL_AND_PORT     "LOGIC0_X1 Z"
-set MIN_BUF_CELL_AND_PORTS  "BUF_X1 A Z"
-set INO_INSERT_BUF          "BUF_X8"
+set BUF_CELL                "BUF_X8"
 set DONT_USE_CELLS          ""
