@@ -20,7 +20,6 @@ set TECH_LEF_FILE       "$FOUNDARY_PATH/prtech/techLEF/N551P6M_ieda.lef"
 set _VT [lindex $VTS 0]
 set TIEHI_CELL_AND_PORT "TIEHIH7${_VT} Z"
 set TIELO_CELL_AND_PORT "TIELOH7${_VT} Z"
-set MIN_BUF_CELL_AND_PORTS  "BUFX0P5H7${_VT} A Y"
-set INO_INSERT_BUF      "BUFX0P5H7${_VT}"
+set BUF_CELL            "BUFX0P5H7${_VT}"
 
 set DONT_USE_CELLS [list "LAT*"]

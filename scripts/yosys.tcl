@@ -45,7 +45,7 @@ set SYNTH_STRATEGY "DELAY 4"
 set buffering 1
 set sizing 1
 
-set driver $INO_INSERT_BUF
+set driver $BUF_CELL
 # unit: pF
 set cap_load 1.6
 
