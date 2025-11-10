@@ -17,7 +17,7 @@
   * iSTA的内部技术可参考[第一期iEDA Tutorial](https://www.bilibili.com/video/BV1a14y1B7uz)
 * iEDA团队的完整工作可参考以下文章
   * [Xingquan Li, Simin Tao, Zengrong Huang, et al. An Open-Source Intelligent Physical Implementation Toolkit and Library[C]. International Symposium of EDA, 2023.](https://github.com/OSCC-Project/iEDA/blob/master/docs/paper/ISEDA'23-iEDA-final.pdf)
-* 目前支持开源PDK nangate45, 具体可在安装依赖(见下文)后阅读nangate45的README
+* 目前支持开源PDK icsprout55, 具体可在安装依赖(见下文)后阅读icsprout55的README
 
 ## 安装依赖
 
@@ -31,7 +31,7 @@
 apt install libunwind-dev liblzma-dev # iEDA的依赖库
 # or
 yum install libunwind liblzma
-make init # 下载预编译的iEDA和nangate45工艺库
+make init # 下载预编译的iEDA和icsprout55工艺库
 ```
 完成后, 测试iEDA能否运行:
 ```
@@ -47,7 +47,7 @@ vim README.md  # 请参考iEDA项目的README中的操作进行构建
 
 ## 评估样例设计
 
-项目包含一个样例设计GCD, 可通过以下命令进行综合, 并评估其在nangate45工艺上的时序表现.
+项目包含一个样例设计GCD, 可通过以下命令进行综合, 并评估其在icsprout55工艺上的时序表现.
 
 ```shell
 make sta
